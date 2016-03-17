@@ -63,7 +63,15 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+## My Theme: https://github.com/warcy/hexo-theme-apollo
+theme: apollo
+
+# Show all posts in archive page using hexo-generator-archive
+archive_generator:
+  per_page: 0
+  yearly: false
+  monthly: false
+  daily: false
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
