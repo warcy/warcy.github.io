@@ -3,10 +3,10 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: warcy's note
 subtitle:
 description:
-author: John Doe
+author: warcy Zhu
 language:
 timezone:
 
@@ -70,4 +70,5 @@ theme: landscape
 deploy:
   type: git
   repo: git@github.com:warcy/warcy.github.io.git
-  branch: gh-pages
+  branch: master
+
