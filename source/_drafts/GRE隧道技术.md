@@ -168,10 +168,9 @@ NXST_FLOW reply (xid=0x4):
 
 ### 结论
 
-全文较长，但主要内容就是以下几点：
-1. OpenStack neutron中使用GRE实现租户间流量隔离，默认是在计算节点的OVS Tunnel Bridge上实现，为减轻CPU负担可以使用边缘的交换机实现offload，比如H3C的[混合方案](http://www.h3c.com.cn/About_H3C/Company_Publication/IP_Lh/2014/07/Home/Catalog/201501/852548_30008_0.htm)。
-2. GRE是一种隧道技术，既然是隧道那么就必须存在Endpoint实现封装与解封装，payload对于“正常”的网络设备应该是透明的，实验二中OVS显然是无法匹配Tunnel id的。
-3. 但是因为本质上来说GRE并没有对payload加密，被截获的报文还是能够被解封装的，所以可通过IPSec等技术进行加密。
+- OpenStack neutron中使用GRE实现租户间流量隔离，默认是在计算节点的OVS Tunnel Bridge上实现，为减轻CPU负担可以使用边缘的交换机实现offload，比如H3C的[混合方案](http://www.h3c.com.cn/About_H3C/Company_Publication/IP_Lh/2014/07/Home/Catalog/201501/852548_30008_0.htm)。
+- GRE是一种隧道技术，既然是隧道那么就必须存在Endpoint实现封装与解封装，payload对于“正常”的网络设备应该是透明的，实验二中OVS显然无法正常匹配Tunnel id。
+- 但是因为本质上来说GRE并没有对payload加密，被截获的报文还是能够被解封装的，所以可通过IPSec等技术进行加密。
 
 ### 参考资料
 
@@ -179,5 +178,6 @@ NXST_FLOW reply (xid=0x4):
 - https://tools.ietf.org/html/rfc2784
 - https://tools.ietf.org/html/rfc2890
 - https://github.com/yeasy/openstack_understand_Neutron/tree/master/gre_mode
+- https://github.com/openstack/neutron/blob/dd4f1253c951d78a5b497680dfb31317ba469a58/neutron/plugins/ml2/drivers/openvswitch/agent/openflow/native/br_tun.py
 - http://www.sdnlab.com/5889.html
 - http://openvswitch.org/pipermail/dev/2013-February/025591.html
