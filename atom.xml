@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2016-03-16T10:35:24.844Z</updated>
+  <updated>2016-04-28T03:08:01.456Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -16,26 +16,41 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Hello World</title>
-    <link href="http://yoursite.com/2016/03/16/hello-world/"/>
-    <id>http://yoursite.com/2016/03/16/hello-world/</id>
-    <published>2016-03-16T10:35:24.844Z</published>
-    <updated>2016-03-16T10:35:24.844Z</updated>
+    <title>博客搭建日志</title>
+    <link href="http://yoursite.com/2016/04/28/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E6%97%A5%E5%BF%97/"/>
+    <id>http://yoursite.com/2016/04/28/博客搭建日志/</id>
+    <published>2016-04-28T03:08:01.000Z</published>
+    <updated>2016-04-28T03:08:01.456Z</updated>
     
-    <content type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;documentation&lt;/a&gt; for more info. If you get any problems when using Hexo, you can find the answer in &lt;a href=&quot;https://hexo.io/docs/troubleshooting.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;troubleshooting&lt;/a&gt; or you can ask me on &lt;a href=&quot;https://github.com/hexojs/hexo/issues&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
-&lt;h2 id=&quot;Quick-Start&quot;&gt;&lt;a href=&quot;#Quick-Start&quot; class=&quot;headerlink&quot; title=&quot;Quick Start&quot;&gt;&lt;/a&gt;Quick Start&lt;/h2&gt;&lt;h3 id=&quot;Create-a-new-post&quot;&gt;&lt;a href=&quot;#Create-a-new-post&quot; class=&quot;headerlink&quot; title=&quot;Create a new post&quot;&gt;&lt;/a&gt;Create a new post&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo new &lt;span class=&quot;string&quot;&gt;&quot;My New Post&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/writing.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Writing&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;Run-server&quot;&gt;&lt;a href=&quot;#Run-server&quot; class=&quot;headerlink&quot; title=&quot;Run server&quot;&gt;&lt;/a&gt;Run server&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo server&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/server.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Server&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;Generate-static-files&quot;&gt;&lt;a href=&quot;#Generate-static-files&quot; class=&quot;headerlink&quot; title=&quot;Generate static files&quot;&gt;&lt;/a&gt;Generate static files&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo generate&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/generating.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Generating&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&quot;Deploy-to-remote-sites&quot;&gt;&lt;a href=&quot;#Deploy-to-remote-sites&quot; class=&quot;headerlink&quot; title=&quot;Deploy to remote sites&quot;&gt;&lt;/a&gt;Deploy to remote sites&lt;/h3&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo deploy&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;More info: &lt;a href=&quot;https://hexo.io/docs/deployment.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Deployment&lt;/a&gt;&lt;/p&gt;
+    <content type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;之前使用过一段时间的Logdown，教育网环境至少5s的访问时间让人无法忍受，虽然写作环境不错不得已还是放弃了。使用Blog的初衷是寻找一个个人学习历程的记录平台，想想静态方案或许是最简洁的。&lt;del&gt;考虑到本人以Pythonista为目标，怎能使用Jekyll&lt;/del&gt;（笑），所以便决定试试Hexo。写下本文权当搭建时的note，记录配置的关键过程以免今后遗忘。&lt;/p&gt;
+&lt;h2 id=&quot;方案介绍&quot;&gt;&lt;a href=&quot;#方案介绍&quot; class=&quot;headerlink&quot; title=&quot;方案介绍&quot;&gt;&lt;/a&gt;方案介绍&lt;/h2&gt;&lt;p&gt;环境：Hexo + Github Pages&lt;/p&gt;
+&lt;p&gt;博客&lt;a href=&quot;https://github.com/warcy/warcy.github.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;仓库&lt;/a&gt;中包含2个分支：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Hexo（默认分支）分支作为写作分支，也是Hexo init生成的博客必要文件&lt;/li&gt;
+&lt;li&gt;Master分支为发布时生成的静态资源，由Pages提供服务。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;必要的依赖如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Git&lt;/li&gt;
+&lt;li&gt;Node.js&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/hexojs/hexo-deployer-git&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;hexo-deployer-git&lt;/a&gt;：Hexo插件，用于发布至Github&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/warcy/hexo-theme-apollo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;apollo&lt;/a&gt;：主题，需安装相关依赖&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;Tips&quot;&gt;&lt;a href=&quot;#Tips&quot; class=&quot;headerlink&quot; title=&quot;Tips&quot;&gt;&lt;/a&gt;Tips&lt;/h2&gt;&lt;h4 id=&quot;使用Layout中的draft功能&quot;&gt;&lt;a href=&quot;#使用Layout中的draft功能&quot; class=&quot;headerlink&quot; title=&quot;使用Layout中的draft功能&quot;&gt;&lt;/a&gt;使用Layout中的draft功能&lt;/h4&gt;&lt;p&gt;Hexo支持草稿功能，在创建新文章时添加&lt;code&gt;draft&lt;/code&gt;至&lt;code&gt;layout&lt;/code&gt;项即可&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo new [layout] &amp;lt;title&amp;gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;此时文章将被存储于&lt;code&gt;source/_drafts&lt;/code&gt;，且在发布时不可见。若想在写作时显示可在运行&lt;code&gt;server&lt;/code&gt;时附带参数&lt;code&gt;--drafts&lt;/code&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo server --drafts&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;当完成草稿撰写，可通过&lt;code&gt;public&lt;/code&gt;发布至&lt;code&gt;source/_posts&lt;/code&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ hexo publish &amp;lt;title&amp;gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;参考资料&quot;&gt;&lt;a href=&quot;#参考资料&quot; class=&quot;headerlink&quot; title=&quot;参考资料&quot;&gt;&lt;/a&gt;参考资料&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://hexo.io/docs/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://hexo.io/docs/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://hexo.io/docs/writing.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://hexo.io/docs/writing.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </content>
     
     <summary type="html">
     
-      &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;之前使用过一段时间的Logdown，教育网环境至少5s的访问时间让人无法忍受，虽然写作环境不错不得已还是放弃了。使用Blog的初衷是寻找一个
     
     </summary>
     

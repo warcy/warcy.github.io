@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 博客搭建日志 · warcy's note</title><meta name="description" content="博客搭建日志 - warcy Zhu"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="https://github.com/warcy" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">博客搭建日志</h1><div class="post-info">Apr 28, 2016</div><div class="post-content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前使用过一段时间的Logdown，教育网环境至少5s的访问时间让人无法忍受，虽然写作环境不错不得已还是放弃了。使用Blog的初衷是寻找一个个人学习历程的记录平台，想想静态方案或许是最简洁的。<del>考虑到本人以Pythonista为目标，怎能使用Jekyll</del>（笑），所以便决定试试Hexo。写下本文权当搭建时的note，记录配置的关键过程以免今后遗忘。</p>
+<h2 id="方案介绍"><a href="#方案介绍" class="headerlink" title="方案介绍"></a>方案介绍</h2><p>环境：Hexo + Github Pages</p>
+<p>博客<a href="https://github.com/warcy/warcy.github.io" target="_blank" rel="external">仓库</a>中包含2个分支：</p>
+<ul>
+<li>Hexo（默认分支）分支作为写作分支，也是Hexo init生成的博客必要文件</li>
+<li>Master分支为发布时生成的静态资源，由Pages提供服务。</li>
+</ul>
+<p>必要的依赖如下：</p>
+<ul>
+<li>Git</li>
+<li>Node.js</li>
+<li><a href="https://github.com/hexojs/hexo-deployer-git" target="_blank" rel="external">hexo-deployer-git</a>：Hexo插件，用于发布至Github</li>
+<li><a href="https://github.com/warcy/hexo-theme-apollo" target="_blank" rel="external">apollo</a>：主题，需安装相关依赖</li>
+</ul>
+<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><h4 id="使用Layout中的draft功能"><a href="#使用Layout中的draft功能" class="headerlink" title="使用Layout中的draft功能"></a>使用Layout中的draft功能</h4><p>Hexo支持草稿功能，在创建新文章时添加<code>draft</code>至<code>layout</code>项即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new [layout] &lt;title&gt;</span><br></pre></td></tr></table></figure>
+<p>此时文章将被存储于<code>source/_drafts</code>，且在发布时不可见。若想在写作时显示可在运行<code>server</code>时附带参数<code>--drafts</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server --drafts</span><br></pre></td></tr></table></figure>
+<p>当完成草稿撰写，可通过<code>public</code>发布至<code>source/_posts</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo publish &lt;title&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://hexo.io/docs/" target="_blank" rel="external">https://hexo.io/docs/</a></li>
+<li><a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">https://hexo.io/docs/writing.html</a></li>
+</ul>
+</div></article></div></section><footer><div class="paginator"></div><div class="copyright"><p>© 2015 - 2016 <a href="http://yoursite.com">warcy Zhu</a>, unless otherwise noted.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>var _hmt = _hmt || [];(function() {var hm = document.createElement("script");hm.src = "//hm.baidu.com/hm.js?a36e15d9e2adec9a21fcdd9f686b1ed2";var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s);})();</script></body></html>
