@@ -11,6 +11,8 @@ GRE（Generic Routing Encapsulation，通用路由协议封装）协议是通过
 
 Tunnel是一个虚拟的点对点连接，提供了一条通路使封装的数据报文能够在这个通路上传输,并且在一个Tunnel的两端分别对数据报进行封装及解封装。图中的路由器A和B作为Tunnel Endpoint实现对报文的封装工作，而在应用中为便于部署也有通过软件方式实现的封装技术。
 
+<!-- more -->
+
 ![gre-tunnel](./gre-tunnel.png)
 
 \* 本图片来源于[GRE技术介绍](http://www.h3c.com.cn/Products___Technology/Technology/Security_Encrypt/Other_technology/Technology_recommend/200805/605933_30003_0.htm)
