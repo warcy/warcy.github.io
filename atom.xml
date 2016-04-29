@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2016-04-28T03:08:01.456Z</updated>
+  <updated>2016-04-29T11:21:49.916Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -16,13 +16,128 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>GRE隧道技术</title>
+    <link href="http://yoursite.com/2016/04/29/GRE%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF/"/>
+    <id>http://yoursite.com/2016/04/29/GRE隧道技术/</id>
+    <published>2016-04-28T16:26:08.000Z</published>
+    <updated>2016-04-29T11:21:49.916Z</updated>
+    
+    <content type="html">&lt;p&gt;GRE（Generic Routing Encapsulation，通用路由协议封装）协议是通过对已有报文进一步封装实现在另一网络层的传输，常见应用为IP-over-IP，是一种隧道（Tunnel）技术。&lt;/p&gt;
+&lt;p&gt;Tunnel是一个虚拟的点对点连接，提供了一条通路使封装的数据报文能够在这个通路上传输,并且在一个Tunnel的两端分别对数据报进行封装及解封装。图中的路由器A和B作为Tunnel Endpoint实现对报文的封装工作，而在应用中为便于部署也有通过软件方式实现的封装技术。&lt;/p&gt;
+&lt;img src=&quot;/2016/04/29/GRE隧道技术/gre-tunnel.png&quot; alt=&quot;gre-tunnel.png&quot; title=&quot;&quot;&gt;
+&lt;p&gt;* 本图片来源于&lt;a href=&quot;http://www.h3c.com.cn/Products___Technology/Technology/Security_Encrypt/Other_technology/Technology_recommend/200805/605933_30003_0.htm&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GRE技术介绍&lt;/a&gt;&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;上图IP network在对GRE进行转发时，将根据报文外层的&lt;code&gt;Delivery Header&lt;/code&gt;部分进行转发，被封装在内部的&lt;code&gt;Payload packet&lt;/code&gt;可视为GRE报文的数据字段。通用GRE报文格式如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;./gre-packet.png&quot; alt=&quot;gre-packet&quot;&gt;&lt;/p&gt;
+&lt;p&gt;其中&lt;code&gt;GRE Header&lt;/code&gt;字段在&lt;strong&gt;RFC2784&lt;/strong&gt;标准中定义如下，后在&lt;strong&gt;RFC2890&lt;/strong&gt;中提出改进方案。在&lt;strong&gt;RFC2890&lt;/strong&gt;中，当设置Key标志位（报文中的2 bit）为1时，增加的Key Field（32 bits）可用于同一个隧道内的多个私有网络/流量的隔离。&lt;/p&gt;
+&lt;h4 id=&quot;RFC2784&quot;&gt;&lt;a href=&quot;#RFC2784&quot; class=&quot;headerlink&quot; title=&quot;RFC2784&quot;&gt;&lt;/a&gt;RFC2784&lt;/h4&gt;&lt;p&gt;&lt;img src=&quot;./gre-header-rfc2784.png&quot; alt=&quot;gre-header-rfc2784&quot;&gt;&lt;/p&gt;
+&lt;h4 id=&quot;RFC2890&quot;&gt;&lt;a href=&quot;#RFC2890&quot; class=&quot;headerlink&quot; title=&quot;RFC2890&quot;&gt;&lt;/a&gt;RFC2890&lt;/h4&gt;&lt;p&gt;&lt;img src=&quot;./gre-header-rfc2890.png&quot; alt=&quot;gre-header-rf2890&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;OpenStack-neutron网络中的应用&quot;&gt;&lt;a href=&quot;#OpenStack-neutron网络中的应用&quot; class=&quot;headerlink&quot; title=&quot;OpenStack neutron网络中的应用&quot;&gt;&lt;/a&gt;OpenStack neutron网络中的应用&lt;/h3&gt;&lt;p&gt;在OpenStack neutron网络下，GRE作为一种隧道技术被应用于实例跨节点通信时的租户流量隔离。不同租户的报文在经由OVS Tunnel Bridge转发时，将设置不同的Key，以用于在对端GRE Endpoint实现对解封装报文的转发。&lt;/p&gt;
+&lt;p&gt;而在使用隧道（包括GRE和VXLAN）作为租户隔离技术时，节点间的转发设备将无法区分节点内具体租户以及实例的流量，即在转发时一个计算节点即一个“用户”。所以对于ToR来说，MAC表项由所有实例的MAC信息减少到Tunnel Endpoint（物理机节点）的MAC信息，以避免大规模数据中心应用时ToR表项空间不足以及路由器表项空间不足等问题。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;./scenario-classic-ovs-flowew2.png&quot; alt=&quot;scenario-classic-ovs-flowew2&quot;&gt;&lt;br&gt;* 本图片来源于&lt;a href=&quot;http://docs.openstack.org/mitaka/networking-guide/scenario-classic-ovs.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Scenario: Classic with Open vSwitch&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;实验&quot;&gt;&lt;a href=&quot;#实验&quot; class=&quot;headerlink&quot; title=&quot;实验&quot;&gt;&lt;/a&gt;实验&lt;/h3&gt;&lt;p&gt;在OpenStack neutron模型中，有通过Open vSwitch实现的GRE的方案，所以本实验尝试通过OVS复现该功能，并测试转发网络对GRE报文的处理。&lt;/p&gt;
+&lt;h4 id=&quot;实验环境&quot;&gt;&lt;a href=&quot;#实验环境&quot; class=&quot;headerlink&quot; title=&quot;实验环境&quot;&gt;&lt;/a&gt;实验环境&lt;/h4&gt;&lt;p&gt;实验环境与&lt;a href=&quot;http://www.sdnlab.com/5889.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;搭建基于Open vSwitch的GRE隧道实验&lt;/a&gt;一文类似，通过2台虚拟机实现模拟Tunnel Endpoint以及用户，另外在虚拟机间的转发使用OVS替代网桥。&lt;/p&gt;
+&lt;p&gt;实验拓扑：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;./experiment-topology.png&quot; alt=&quot;experiment-topology&quot;&gt;&lt;/p&gt;
+&lt;p&gt;设备信息：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;设备&lt;/th&gt;
+&lt;th&gt;IP&lt;/th&gt;
+&lt;th&gt;MAC&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;VM1-br0&lt;/td&gt;
+&lt;td&gt;192.168.4.10&lt;/td&gt;
+&lt;td&gt;9e:7c:b1:71:f8:49&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;VM1-br1&lt;/td&gt;
+&lt;td&gt;192.168.5.23&lt;/td&gt;
+&lt;td&gt;08:00:27:54:e2:e4&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;VM2-br0&lt;/td&gt;
+&lt;td&gt;192.168.4.11&lt;/td&gt;
+&lt;td&gt;82:2a:2c:98:c1:4b&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;VM2-br1&lt;/td&gt;
+&lt;td&gt;192.168.5.238&lt;/td&gt;
+&lt;td&gt;08:00:27:f4:36:8d&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;VM1-eth0&lt;/td&gt;
+&lt;td&gt;Null&lt;/td&gt;
+&lt;td&gt;08:00:27:54:e2:e4&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;VM2-eth0&lt;/td&gt;
+&lt;td&gt;Null&lt;/td&gt;
+&lt;td&gt;08:00:27:f4:36:8d&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h4 id=&quot;实验流程&quot;&gt;&lt;a href=&quot;#实验流程&quot; class=&quot;headerlink&quot; title=&quot;实验流程&quot;&gt;&lt;/a&gt;实验流程&lt;/h4&gt;&lt;p&gt;利用Mininet默认命令在物理机快速创建OVS s1，并将虚拟机分别加入该OVS的&lt;strong&gt;s1-eth1&lt;/strong&gt;和&lt;strong&gt;s1-eth2&lt;/strong&gt;（默认生成的h1/h2在10.0.0.0/8网段，不会对实验造成干扰）。为便于调试该OVS，使用Ryu作为控制器。&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ sudo mn --controller=remote&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;虚拟机的网桥设置与原文相同，分别配置网桥br0和br1的IP地址及网关信息。&lt;br&gt;VM1：&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ ovs-vsctl add-br br0&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ ovs-vsctl add-br br1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ ifconfig br1 192.168.5.23/24 up&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ route add default gw 192.168.5.1 dev br1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ ifconfig br0 192.168.4.10/24 up&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;VM2:&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ ovs-vsctl add-br br0&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ ovs-vsctl add-br br1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ ifconfig br1 192.168.5.238/24 up&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ route add default gw 192.168.5.1 dev br1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ ifconfig br0 192.168.4.11/24 up&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;在建立GRE隧道时，添加&lt;code&gt;in_key&lt;/code&gt;和&lt;code&gt;out_key&lt;/code&gt;参数，以便通过流表来设置Tunnel id（即GRE报文的Key Field）。对应所加流表项在封装报文时设置Tunnel id为10，并从2端口发出（即本实验中eth0的端口号，可通过&lt;code&gt;ovs-ofctl show br0&lt;/code&gt;命令查看）。&lt;br&gt;VM1:&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ ovs-vsctl add-port br0 gre1 -- &lt;span class=&quot;built_in&quot;&gt;set&lt;/span&gt; interface gre1 &lt;span class=&quot;built_in&quot;&gt;type&lt;/span&gt;=gre \&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;option:remote_ip=192.168.5.238 option:&lt;span class=&quot;built_in&quot;&gt;local&lt;/span&gt;=192.168.5.23 \&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;option:&lt;span class=&quot;keyword&quot;&gt;in&lt;/span&gt;_key=flow option:out_key=flow&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ ovs-ofctl add-flow br0 &lt;span class=&quot;string&quot;&gt;&#39;priority=10,in_port=local,actions=set_tunnel:10,output=2&#39;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;VM2:&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ ovs-vsctl add-port br0 gre1 -- &lt;span class=&quot;built_in&quot;&gt;set&lt;/span&gt; interface gre1 &lt;span class=&quot;built_in&quot;&gt;type&lt;/span&gt;=gre \&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;option:remote_ip=192.168.5.23 option:&lt;span class=&quot;built_in&quot;&gt;local&lt;/span&gt;=192.168.5.238 \&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;option:&lt;span class=&quot;keyword&quot;&gt;in&lt;/span&gt;_key=flow option:out_key=flow&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ ovs-ofctl add-flow br0 &lt;span class=&quot;string&quot;&gt;&#39;priority=10,in_port=local,actions=set_tunnel:10,output=2&#39;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;为实现通信，通过控制器在物理机的s1下发以下流表，实现对Tunnel Endpoint的ARP处理及GRE报文的转发。为便于在控制器端分析报文，对于未匹配报文统一将其发送至控制器。&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ ovs-ofctl dump-flows s1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;NXST_FLOW reply (xid=0x4):&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; cookie=0x0, duration=14.398s, table=0, n_packets=1, n_bytes=140, idle_age=3, priority=10,ip,&lt;span class=&quot;keyword&quot;&gt;in&lt;/span&gt;_port=1,nw_proto=47 actions=resubmit(,10)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; cookie=0x0, duration=14.398s, table=0, n_packets=1, n_bytes=140, idle_age=3, priority=10,ip,&lt;span class=&quot;keyword&quot;&gt;in&lt;/span&gt;_port=2,nw_proto=47 actions=resubmit(,20)&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; cookie=0x0, duration=14.398s, table=0, n_packets=0, n_bytes=0, idle_age=14, priority=5,arp actions=ALL&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; cookie=0x0, duration=14.398s, table=0, n_packets=0, n_bytes=0, idle_age=14, priority=0 actions=CONTROLLER:65535&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; cookie=0x0, duration=14.398s, table=10, n_packets=1, n_bytes=140, idle_age=3, priority=10,dl_src=08:00:27:54:e2:e4 actions=output:2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; cookie=0x10, duration=14.398s, table=10, n_packets=0, n_bytes=0, idle_age=14, priority=0 actions=CONTROLLER:65535&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; cookie=0x0, duration=14.398s, table=20, n_packets=1, n_bytes=140, idle_age=3, priority=10,dl_src=08:00:27:f4:36:8d actions=output:1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; cookie=0x10, duration=14.398s, table=20, n_packets=0, n_bytes=0, idle_age=14, priority=0 actions=CONTROLLER:65535&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;在VM1 ping VM2，观察VM1的ARP信息，并通过Wireshark抓取通过VM1 eth0的ICMP报文。&lt;br&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ ping 192.168.4.11 -c1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;PING 192.168.4.11 (192.168.4.11) 56(84) bytes of data.&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;64 bytes from 192.168.4.11: icmp_seq=1 ttl=64 time=0.977 ms&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;--- 192.168.4.11 ping statistics ---&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;1 packets transmitted, 1 received, 0% packet loss, time 0ms&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;rtt min/avg/max/mdev = 0.977/0.977/0.977/0.000 ms&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;root@ovs-VirtualBox:/home/ovs&lt;span class=&quot;comment&quot;&gt;# arp -n&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;Address                  HW&lt;span class=&quot;built_in&quot;&gt;type&lt;/span&gt;  HWaddress           Flags Mask            Iface&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;192.168.5.238            ether   08:00:27:f4:36:8d   C                     br1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;192.168.4.11             ether   82:2a:2c:98:c1:4b   C                     br0&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;./gre-experiment-wireshark.png&quot; alt=&quot;gre-experiment-wireshark&quot;&gt;&lt;/p&gt;
+&lt;p&gt;由抓包结果可见，相较于原实验，GRE Header的&lt;code&gt;Flags and Version&lt;/code&gt;值为0x2000而非0x0，即Key标志位被置1。同时Key Field被流表设为0xa，与GRE桥br0配置的流表相吻合。&lt;br&gt;若隧道未设置流表，则发送的报文Key标志位仍置1，但Key Field为0x0。&lt;/p&gt;
+&lt;h3 id=&quot;扩展实验&quot;&gt;&lt;a href=&quot;#扩展实验&quot; class=&quot;headerlink&quot; title=&quot;扩展实验&quot;&gt;&lt;/a&gt;扩展实验&lt;/h3&gt;&lt;h4 id=&quot;实验一&quot;&gt;&lt;a href=&quot;#实验一&quot; class=&quot;headerlink&quot; title=&quot;实验一&quot;&gt;&lt;/a&gt;实验一&lt;/h4&gt;&lt;p&gt;在配置GRE隧道时，可通过以下命令指定Tunnel id，此时封装的GRE报文Key Field将被设置为0xa。由于指定了Key值，在若VM2未配置key使用缺省0x0或者值的内容不为0xa时，Endpoint将会丢弃该报文。&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ ovs-vsctl add-port br0 gre1 -- &lt;span class=&quot;built_in&quot;&gt;set&lt;/span&gt; interface gre1 &lt;span class=&quot;built_in&quot;&gt;type&lt;/span&gt;=gre \&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;option:remote_ip=192.168.5.23 option:&lt;span class=&quot;built_in&quot;&gt;local&lt;/span&gt;=192.168.5.238 \&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;option:key=10&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h4 id=&quot;实验二&quot;&gt;&lt;a href=&quot;#实验二&quot; class=&quot;headerlink&quot; title=&quot;实验二&quot;&gt;&lt;/a&gt;实验二&lt;/h4&gt;&lt;p&gt;根据报文的Protocol字段值为47可以确定报文为GRE报文，便想到OVS能否进一步匹配GRE的Tunnel id，修改s1的部分流表如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ ovs-ofctl dump-flows s1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;NXST_FLOW reply (xid=0x4):&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; cookie=0x0, duration=13.235s, table=10, n_packets=0, n_bytes=0, idle_age=13, priority=10,tun_id=0xa,dl_src=08:00:27:54:e2:e4 actions=output:2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; cookie=0x0, duration=13.235s, table=20, n_packets=0, n_bytes=0, idle_age=13, priority=10,tun_id=0xa,dl_src=08:00:27:f4:36:8d actions=output:1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;虽然流表可见，然而并没有什么用处，该条流表并不会匹配任何报文。因为tun_id的匹配是建立在GRE Endpoint能解封装GRE报文的情况下的，此时s1的端口未配置GRE隧道，将不会对报文内的GRE Header做处理。&lt;/p&gt;
+&lt;h3 id=&quot;结论&quot;&gt;&lt;a href=&quot;#结论&quot; class=&quot;headerlink&quot; title=&quot;结论&quot;&gt;&lt;/a&gt;结论&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;OpenStack neutron中使用GRE实现租户间流量隔离，默认是在计算节点的OVS Tunnel Bridge上实现，为减轻CPU负担可以使用边缘的交换机实现offload，比如H3C的&lt;a href=&quot;http://www.h3c.com.cn/About_H3C/Company_Publication/IP_Lh/2014/07/Home/Catalog/201501/852548_30008_0.htm&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;混合方案&lt;/a&gt;。&lt;/li&gt;
+&lt;li&gt;GRE是一种隧道技术，既然是隧道那么就必须存在Endpoint实现封装与解封装，payload对于“正常”的网络设备应该是透明的，实验二中OVS显然无法正常匹配Tunnel id。&lt;/li&gt;
+&lt;li&gt;但是因为本质上来说GRE并没有对payload加密，被截获的报文还是能够被解封装的，所以可通过IPSec等技术进行加密。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;参考资料&quot;&gt;&lt;a href=&quot;#参考资料&quot; class=&quot;headerlink&quot; title=&quot;参考资料&quot;&gt;&lt;/a&gt;参考资料&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://tools.ietf.org/html/rfc1701&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://tools.ietf.org/html/rfc1701&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://tools.ietf.org/html/rfc2784&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://tools.ietf.org/html/rfc2784&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://tools.ietf.org/html/rfc2890&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://tools.ietf.org/html/rfc2890&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/yeasy/openstack_understand_Neutron/tree/master/gre_mode&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/yeasy/openstack_understand_Neutron/tree/master/gre_mode&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/openstack/neutron/blob/dd4f1253c951d78a5b497680dfb31317ba469a58/neutron/plugins/ml2/drivers/openvswitch/agent/openflow/native/br_tun.py&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/openstack/neutron/blob/dd4f1253c951d78a5b497680dfb31317ba469a58/neutron/plugins/ml2/drivers/openvswitch/agent/openflow/native/br_tun.py&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.sdnlab.com/5889.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.sdnlab.com/5889.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://openvswitch.org/pipermail/dev/2013-February/025591.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://openvswitch.org/pipermail/dev/2013-February/025591.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;GRE（Generic Routing Encapsulation，通用路由协议封装）协议是通过对已有报文进一步封装实现在另一网络层的传输，常见应用为IP-over-IP，是一种隧道（Tunnel）技术。&lt;/p&gt;
+&lt;p&gt;Tunnel是一个虚拟的点对点连接，提供了一条通路使封装的数据报文能够在这个通路上传输,并且在一个Tunnel的两端分别对数据报进行封装及解封装。图中的路由器A和B作为Tunnel Endpoint实现对报文的封装工作，而在应用中为便于部署也有通过软件方式实现的封装技术。&lt;/p&gt;
+&lt;img src=&quot;/2016/04/29/GRE隧道技术/gre-tunnel.png&quot; alt=&quot;gre-tunnel.png&quot; title=&quot;&quot;&gt;
+&lt;p&gt;* 本图片来源于&lt;a href=&quot;http://www.h3c.com.cn/Products___Technology/Technology/Security_Encrypt/Other_technology/Technology_recommend/200805/605933_30003_0.htm&quot;&gt;GRE技术介绍&lt;/a&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>博客搭建日志</title>
     <link href="http://yoursite.com/2016/04/28/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E6%97%A5%E5%BF%97/"/>
     <id>http://yoursite.com/2016/04/28/博客搭建日志/</id>
     <published>2016-04-28T03:08:01.000Z</published>
-    <updated>2016-04-28T03:08:01.456Z</updated>
+    <updated>2016-04-29T04:12:11.520Z</updated>
     
-    <content type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;之前使用过一段时间的Logdown，教育网环境至少5s的访问时间让人无法忍受，虽然写作环境不错不得已还是放弃了。使用Blog的初衷是寻找一个个人学习历程的记录平台，想想静态方案或许是最简洁的。&lt;del&gt;考虑到本人以Pythonista为目标，怎能使用Jekyll&lt;/del&gt;（笑），所以便决定试试Hexo。写下本文权当搭建时的note，记录配置的关键过程以免今后遗忘。&lt;/p&gt;
+    <content type="html">&lt;p&gt;之前使用过一段时间的Logdown，教育网环境至少5s的访问时间让人无法忍受，虽然写作环境不错不得已还是放弃了。使用Blog的初衷是寻找一个个人学习历程的记录平台，想想静态方案或许是最简洁的。&lt;del&gt;考虑到本人以Pythonista为目标，怎能使用Jekyll&lt;/del&gt;（笑），所以便决定试试Hexo。写下本文权当搭建时的note，记录配置的关键过程以免今后遗忘。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h2 id=&quot;方案介绍&quot;&gt;&lt;a href=&quot;#方案介绍&quot; class=&quot;headerlink&quot; title=&quot;方案介绍&quot;&gt;&lt;/a&gt;方案介绍&lt;/h2&gt;&lt;p&gt;环境：Hexo + Github Pages&lt;/p&gt;
 &lt;p&gt;博客&lt;a href=&quot;https://github.com/warcy/warcy.github.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;仓库&lt;/a&gt;中包含2个分支：&lt;/p&gt;
 &lt;ul&gt;
@@ -50,7 +165,7 @@
     
     <summary type="html">
     
-      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;之前使用过一段时间的Logdown，教育网环境至少5s的访问时间让人无法忍受，虽然写作环境不错不得已还是放弃了。使用Blog的初衷是寻找一个
+      &lt;p&gt;之前使用过一段时间的Logdown，教育网环境至少5s的访问时间让人无法忍受，虽然写作环境不错不得已还是放弃了。使用Blog的初衷是寻找一个个人学习历程的记录平台，想想静态方案或许是最简洁的。&lt;del&gt;考虑到本人以Pythonista为目标，怎能使用Jekyll&lt;/del&gt;（笑），所以便决定试试Hexo。写下本文权当搭建时的note，记录配置的关键过程以免今后遗忘。&lt;/p&gt;
     
     </summary>
     

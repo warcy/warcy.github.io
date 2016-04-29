@@ -1,0 +1,93 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> GRE隧道技术 · warcy's note</title><meta name="description" content="GRE隧道技术 - warcy Zhu"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="https://github.com/warcy" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">GRE隧道技术</h1><div class="post-info">Apr 28, 2016</div><div class="post-content"><h3 id="GRE协议"><a href="#GRE协议" class="headerlink" title="GRE协议"></a>GRE协议</h3><p>GRE（Generic Routing Encapsulation，通用路由协议封装）协议是通过对已有报文进一步封装实现在另一网络层的传输，常见应用为IP-over-IP，是一种隧道（Tunnel）技术。</p>
+<p>Tunnel是一个虚拟的点对点连接，提供了一条通路使封装的数据报文能够在这个通路上传输,并且在一个Tunnel的两端分别对数据报进行封装及解封装。图中的路由器A和B作为Tunnel Endpoint实现对报文的封装工作，而在应用中为便于部署也有通过软件方式实现的封装技术。</p>
+<p><img src="./gre-tunnel.png" alt="gre-tunnel"></p>
+<p>* 本图片来源于<a href="http://www.h3c.com.cn/Products___Technology/Technology/Security_Encrypt/Other_technology/Technology_recommend/200805/605933_30003_0.htm" target="_blank" rel="external">GRE技术介绍</a></p>
+<p>上图IP network在对GRE进行转发时，将根据报文外层的<code>Delivery Header</code>部分进行转发，被封装在内部的<code>Payload packet</code>可视为GRE报文的数据字段。通用GRE报文格式如下：</p>
+<p><img src="./gre-packet.png" alt="gre-packet"></p>
+<p>其中<code>GRE Header</code>字段在<strong>RFC2784</strong>标准中定义如下，后在<strong>RFC2890</strong>中提出改进方案。在<strong>RFC2890</strong>中，当设置Key标志位（报文中的2 bit）为1时，增加的Key Field（32 bits）可用于同一个隧道内的多个私有网络/流量的隔离。</p>
+<h4 id="RFC2784"><a href="#RFC2784" class="headerlink" title="RFC2784"></a>RFC2784</h4><p><img src="./gre-header-rfc2784.png" alt="gre-header-rfc2784"></p>
+<h4 id="RFC2890"><a href="#RFC2890" class="headerlink" title="RFC2890"></a>RFC2890</h4><p><img src="./gre-header-rfc2890.png" alt="gre-header-rf2890"></p>
+<h3 id="OpenStack-neutron网络中的应用"><a href="#OpenStack-neutron网络中的应用" class="headerlink" title="OpenStack neutron网络中的应用"></a>OpenStack neutron网络中的应用</h3><p>在OpenStack neutron网络下，GRE作为一种隧道技术被应用于实例跨节点通信时的租户流量隔离。不同租户的报文在经由OVS Tunnel Bridge转发时，将设置不同的Key，以用于在对端GRE Endpoint实现对解封装报文的转发。</p>
+<p>而在使用隧道（包括GRE和VXLAN）作为租户隔离技术时，节点间的转发设备将无法区分节点内具体租户以及实例的流量，即在转发时一个计算节点即一个“用户”。所以对于ToR来说，MAC表项由所有实例的MAC信息减少到Tunnel Endpoint（物理机节点）的MAC信息，以避免大规模数据中心应用时ToR表项空间不足以及路由器表项空间不足等问题。</p>
+<p><img src="./scenario-classic-ovs-flowew2.png" alt="scenario-classic-ovs-flowew2"><br>* 本图片来源于<a href="http://docs.openstack.org/mitaka/networking-guide/scenario-classic-ovs.html" target="_blank" rel="external">Scenario: Classic with Open vSwitch</a></p>
+<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3><p>在OpenStack neutron模型中，有通过Open vSwitch实现的GRE的方案，所以本实验尝试通过OVS复现该功能，并测试转发网络对GRE报文的处理。</p>
+<h4 id="实验环境"><a href="#实验环境" class="headerlink" title="实验环境"></a>实验环境</h4><p>实验环境与<a href="http://www.sdnlab.com/5889.html" target="_blank" rel="external">搭建基于Open vSwitch的GRE隧道实验</a>一文类似，通过2台虚拟机实现模拟Tunnel Endpoint以及用户，另外在虚拟机间的转发使用OVS替代网桥。</p>
+<p>实验拓扑：</p>
+<p><img src="./experiment-topology.png" alt="experiment-topology"></p>
+<p>设备信息：</p>
+<table>
+<thead>
+<tr>
+<th>设备</th>
+<th>IP</th>
+<th>MAC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VM1-br0</td>
+<td>192.168.4.10</td>
+<td>9e:7c:b1:71:f8:49</td>
+</tr>
+<tr>
+<td>VM1-br1</td>
+<td>192.168.5.23</td>
+<td>08:00:27:54:e2:e4</td>
+</tr>
+<tr>
+<td>VM2-br0</td>
+<td>192.168.4.11</td>
+<td>82:2a:2c:98:c1:4b</td>
+</tr>
+<tr>
+<td>VM2-br1</td>
+<td>192.168.5.238</td>
+<td>08:00:27:f4:36:8d</td>
+</tr>
+<tr>
+<td>VM1-eth0</td>
+<td>Null</td>
+<td>08:00:27:54:e2:e4</td>
+</tr>
+<tr>
+<td>VM2-eth0</td>
+<td>Null</td>
+<td>08:00:27:f4:36:8d</td>
+</tr>
+</tbody>
+</table>
+<h4 id="实验流程"><a href="#实验流程" class="headerlink" title="实验流程"></a>实验流程</h4><p>利用Mininet默认命令在物理机快速创建OVS s1，并将虚拟机分别加入该OVS的<strong>s1-eth1</strong>和<strong>s1-eth2</strong>（默认生成的h1/h2在10.0.0.0/8网段，不会对实验造成干扰）。为便于调试该OVS，使用Ryu作为控制器。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mn --controller=remote</span><br></pre></td></tr></table></figure>
+<p>虚拟机的网桥设置与原文相同，分别配置网桥br0和br1的IP地址及网关信息。<br>VM1：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ovs-vsctl add-br br0</span><br><span class="line">$ ovs-vsctl add-br br1</span><br><span class="line">$ ifconfig br1 192.168.5.23/24 up</span><br><span class="line">$ route add default gw 192.168.5.1 dev br1</span><br><span class="line">$ ifconfig br0 192.168.4.10/24 up</span><br></pre></td></tr></table></figure>
+<p>VM2:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ovs-vsctl add-br br0</span><br><span class="line">$ ovs-vsctl add-br br1</span><br><span class="line">$ ifconfig br1 192.168.5.238/24 up</span><br><span class="line">$ route add default gw 192.168.5.1 dev br1</span><br><span class="line">$ ifconfig br0 192.168.4.11/24 up</span><br></pre></td></tr></table></figure>
+<p>在建立GRE隧道时，添加<code>in_key</code>和<code>out_key</code>参数，以便通过流表来设置Tunnel id（即GRE报文的Key Field）。对应所加流表项在封装报文时设置Tunnel id为10，并从2端口发出（即本实验中eth0的端口号，可通过<code>ovs-ofctl show br0</code>命令查看）。<br>VM1:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ovs-vsctl add-port br0 gre1 -- <span class="built_in">set</span> interface gre1 <span class="built_in">type</span>=gre \</span><br><span class="line">option:remote_ip=192.168.5.238 option:<span class="built_in">local</span>=192.168.5.23 \</span><br><span class="line">option:<span class="keyword">in</span>_key=flow option:out_key=flow</span><br><span class="line">$ ovs-ofctl add-flow br0 <span class="string">'priority=10,in_port=local,actions=set_tunnel:10,output=2'</span></span><br></pre></td></tr></table></figure>
+<p>VM2:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ovs-vsctl add-port br0 gre1 -- <span class="built_in">set</span> interface gre1 <span class="built_in">type</span>=gre \</span><br><span class="line">option:remote_ip=192.168.5.23 option:<span class="built_in">local</span>=192.168.5.238 \</span><br><span class="line">option:<span class="keyword">in</span>_key=flow option:out_key=flow</span><br><span class="line">$ ovs-ofctl add-flow br0 <span class="string">'priority=10,in_port=local,actions=set_tunnel:10,output=2'</span></span><br></pre></td></tr></table></figure>
+<p>为实现通信，通过控制器在物理机的s1下发以下流表，实现对Tunnel Endpoint的ARP处理及GRE报文的转发。为便于在控制器端分析报文，对于未匹配报文统一将其发送至控制器。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ovs-ofctl dump-flows s1</span></span><br><span class="line">NXST_FLOW reply (xid=0x4):</span><br><span class="line"> cookie=0x0, duration=14.398s, table=0, n_packets=1, n_bytes=140, idle_age=3, priority=10,ip,<span class="keyword">in</span>_port=1,nw_proto=47 actions=resubmit(,10)</span><br><span class="line"> cookie=0x0, duration=14.398s, table=0, n_packets=1, n_bytes=140, idle_age=3, priority=10,ip,<span class="keyword">in</span>_port=2,nw_proto=47 actions=resubmit(,20)</span><br><span class="line"> cookie=0x0, duration=14.398s, table=0, n_packets=0, n_bytes=0, idle_age=14, priority=5,arp actions=ALL</span><br><span class="line"> cookie=0x0, duration=14.398s, table=0, n_packets=0, n_bytes=0, idle_age=14, priority=0 actions=CONTROLLER:65535</span><br><span class="line"> cookie=0x0, duration=14.398s, table=10, n_packets=1, n_bytes=140, idle_age=3, priority=10,dl_src=08:00:27:54:e2:e4 actions=output:2</span><br><span class="line"> cookie=0x10, duration=14.398s, table=10, n_packets=0, n_bytes=0, idle_age=14, priority=0 actions=CONTROLLER:65535</span><br><span class="line"> cookie=0x0, duration=14.398s, table=20, n_packets=1, n_bytes=140, idle_age=3, priority=10,dl_src=08:00:27:f4:36:8d actions=output:1</span><br><span class="line"> cookie=0x10, duration=14.398s, table=20, n_packets=0, n_bytes=0, idle_age=14, priority=0 actions=CONTROLLER:65535</span><br></pre></td></tr></table></figure>
+<p>在VM1 ping VM2，观察VM1的ARP信息，并通过Wireshark抓取通过VM1 eth0的ICMP报文。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">root@ovs-VirtualBox:/home/ovs<span class="comment"># ping 192.168.4.11 -c1</span></span><br><span class="line">PING 192.168.4.11 (192.168.4.11) 56(84) bytes of data.</span><br><span class="line">64 bytes from 192.168.4.11: icmp_seq=1 ttl=64 time=0.977 ms</span><br><span class="line"></span><br><span class="line">--- 192.168.4.11 ping statistics ---</span><br><span class="line">1 packets transmitted, 1 received, 0% packet loss, time 0ms</span><br><span class="line">rtt min/avg/max/mdev = 0.977/0.977/0.977/0.000 ms</span><br><span class="line">root@ovs-VirtualBox:/home/ovs<span class="comment"># arp -n</span></span><br><span class="line">Address                  HW<span class="built_in">type</span>  HWaddress           Flags Mask            Iface</span><br><span class="line">192.168.5.238            ether   08:00:27:f4:36:8d   C                     br1</span><br><span class="line">192.168.4.11             ether   82:2a:2c:98:c1:4b   C                     br0</span><br></pre></td></tr></table></figure></p>
+<p><img src="./experiment-wireshark.png" alt="experiment-wireshark"></p>
+<p>由抓包结果可见，相较于原实验，GRE Header的<code>Flags and Version</code>值为0x2000而非0x0，即Key标志位被置1。同时Key Field被流表设为0xa，与GRE桥br0配置的流表相吻合。<br>若隧道未设置流表，则发送的报文Key标志位仍置1，但Key Field为0x0。</p>
+<h3 id="扩展实验"><a href="#扩展实验" class="headerlink" title="扩展实验"></a>扩展实验</h3><h4 id="实验一"><a href="#实验一" class="headerlink" title="实验一"></a>实验一</h4><p>在配置GRE隧道时，可通过以下命令指定Tunnel id，此时封装的GRE报文Key Field将被设置为0xa。由于指定了Key值，在若VM2未配置key使用缺省0x0或者值的内容不为0xa时，Endpoint将会丢弃该报文。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ ovs-vsctl add-port br0 gre1 -- <span class="built_in">set</span> interface gre1 <span class="built_in">type</span>=gre \</span><br><span class="line">option:remote_ip=192.168.5.23 option:<span class="built_in">local</span>=192.168.5.238 \</span><br><span class="line">option:key=10</span><br></pre></td></tr></table></figure>
+<h4 id="实验二"><a href="#实验二" class="headerlink" title="实验二"></a>实验二</h4><p>根据报文的Protocol字段值为47可以确定报文为GRE报文，便想到OVS能否进一步匹配GRE的Tunnel id，修改s1的部分流表如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ovs-ofctl dump-flows s1</span></span><br><span class="line">NXST_FLOW reply (xid=0x4):</span><br><span class="line"> cookie=0x0, duration=13.235s, table=10, n_packets=0, n_bytes=0, idle_age=13, priority=10,tun_id=0xa,dl_src=08:00:27:54:e2:e4 actions=output:2</span><br><span class="line"> cookie=0x0, duration=13.235s, table=20, n_packets=0, n_bytes=0, idle_age=13, priority=10,tun_id=0xa,dl_src=08:00:27:f4:36:8d actions=output:1</span><br></pre></td></tr></table></figure>
+<p>虽然流表可见，然而并没有什么用处，该条流表并不会匹配任何报文。因为tun_id的匹配是建立在GRE Endpoint能解封装GRE报文的情况下的，此时s1的端口未配置GRE隧道，将不会对报文内的GRE Header做处理。</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>全文较长，但主要内容就是以下几点：</p>
+<ol>
+<li>OpenStack neutron中使用GRE实现租户间流量隔离，默认是在计算节点的OVS Tunnel Bridge上实现，为减轻CPU负担可以使用边缘的交换机实现offload，比如H3C的<a href="http://www.h3c.com.cn/About_H3C/Company_Publication/IP_Lh/2014/07/Home/Catalog/201501/852548_30008_0.htm" target="_blank" rel="external">混合方案</a>。</li>
+<li>GRE是一种隧道技术，既然是隧道那么就必须存在Endpoint实现封装与解封装，payload对于“正常”的网络设备应该是透明的，实验二中OVS显然是无法匹配Tunnel id的。</li>
+<li>但是因为本质上来说GRE并没有对payload加密，被截获的报文还是能够被解封装的，所以可通过IPSec等技术进行加密。</li>
+</ol>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://tools.ietf.org/html/rfc1701" target="_blank" rel="external">https://tools.ietf.org/html/rfc1701</a></li>
+<li><a href="https://tools.ietf.org/html/rfc2784" target="_blank" rel="external">https://tools.ietf.org/html/rfc2784</a></li>
+<li><a href="https://tools.ietf.org/html/rfc2890" target="_blank" rel="external">https://tools.ietf.org/html/rfc2890</a></li>
+<li><a href="https://github.com/yeasy/openstack_understand_Neutron/tree/master/gre_mode" target="_blank" rel="external">https://github.com/yeasy/openstack_understand_Neutron/tree/master/gre_mode</a></li>
+<li><a href="http://www.sdnlab.com/5889.html" target="_blank" rel="external">http://www.sdnlab.com/5889.html</a></li>
+<li><a href="http://openvswitch.org/pipermail/dev/2013-February/025591.html" target="_blank" rel="external">http://openvswitch.org/pipermail/dev/2013-February/025591.html</a></li>
+</ul>
+</div></article></div></section><footer><div class="paginator"><a href="/2016/04/28/博客搭建日志/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2016 <a href="http://yoursite.com">warcy Zhu</a>, unless otherwise noted.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>var _hmt = _hmt || [];(function() {var hm = document.createElement("script");hm.src = "//hm.baidu.com/hm.js?a36e15d9e2adec9a21fcdd9f686b1ed2";var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s);})();</script></body></html>
