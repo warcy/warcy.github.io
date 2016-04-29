@@ -112,7 +112,7 @@ $ ovs-ofctl add-flow br0 'priority=10,in_port=local,actions=set_tunnel:10,output
 为实现通信，通过控制器在物理机的s1下发以下流表，实现对Tunnel Endpoint的ARP处理及GRE报文的转发。为便于在控制器端分析报文，对于未匹配报文统一将其发送至控制器。
 
 ```bash
-# ovs-ofctl dump-flows s1
+$ ovs-ofctl dump-flows s1
 NXST_FLOW reply (xid=0x4):
  cookie=0x0, duration=14.398s, table=0, n_packets=1, n_bytes=140, idle_age=3, priority=10,ip,in_port=1,nw_proto=47 actions=resubmit(,10)
  cookie=0x0, duration=14.398s, table=0, n_packets=1, n_bytes=140, idle_age=3, priority=10,ip,in_port=2,nw_proto=47 actions=resubmit(,20)
@@ -126,7 +126,7 @@ NXST_FLOW reply (xid=0x4):
 
 在VM1 ping VM2，观察VM1的ARP信息，并通过Wireshark抓取通过VM1 eth0的ICMP报文。
 ```bash
-root@ovs-VirtualBox:/home/ovs# ping 192.168.4.11 -c1
+$ ping 192.168.4.11 -c1
 PING 192.168.4.11 (192.168.4.11) 56(84) bytes of data.
 64 bytes from 192.168.4.11: icmp_seq=1 ttl=64 time=0.977 ms
 
@@ -160,7 +160,7 @@ option:key=10
 根据报文的Protocol字段值为47可以确定报文为GRE报文，便想到OVS能否进一步匹配GRE的Tunnel id，修改s1的部分流表如下：
 
 ```bash
-# ovs-ofctl dump-flows s1
+$ ovs-ofctl dump-flows s1
 NXST_FLOW reply (xid=0x4):
  cookie=0x0, duration=13.235s, table=10, n_packets=0, n_bytes=0, idle_age=13, priority=10,tun_id=0xa,dl_src=08:00:27:54:e2:e4 actions=output:2
  cookie=0x0, duration=13.235s, table=20, n_packets=0, n_bytes=0, idle_age=13, priority=10,tun_id=0xa,dl_src=08:00:27:f4:36:8d actions=output:1
