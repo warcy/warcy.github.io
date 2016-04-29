@@ -9,11 +9,11 @@ GRE（Generic Routing Encapsulation，通用路由协议封装）协议是通过
 
 Tunnel是一个虚拟的点对点连接，提供了一条通路使封装的数据报文能够在这个通路上传输,并且在一个Tunnel的两端分别对数据报进行封装及解封装。图中的路由器A和B作为Tunnel Endpoint实现对报文的封装工作，而在应用中为便于部署也有通过软件方式实现的封装技术。
 
-<!-- more -->
-
-![gre-tunnel](./gre-tunnel.png)
+{% asset_img gre-tunnel.png %}
 
 \* 本图片来源于[GRE技术介绍](http://www.h3c.com.cn/Products___Technology/Technology/Security_Encrypt/Other_technology/Technology_recommend/200805/605933_30003_0.htm)
+
+<!-- more -->
 
 上图IP network在对GRE进行转发时，将根据报文外层的`Delivery Header`部分进行转发，被封装在内部的`Payload packet`可视为GRE报文的数据字段。通用GRE报文格式如下：
 
@@ -139,7 +139,7 @@ Address                  HWtype  HWaddress           Flags Mask            Iface
 192.168.4.11             ether   82:2a:2c:98:c1:4b   C                     br0
 ```
 
-![experiment-wireshark](./experiment-wireshark.png)
+![gre-experiment-wireshark](./gre-experiment-wireshark.png)
 
 由抓包结果可见，相较于原实验，GRE Header的`Flags and Version`值为0x2000而非0x0，即Key标志位被置1。同时Key Field被流表设为0xa，与GRE桥br0配置的流表相吻合。
 若隧道未设置流表，则发送的报文Key标志位仍置1，但Key Field为0x0。
