@@ -41,11 +41,30 @@ option:in_key=flow option:out_key=flow
 $ ovs-ofctl add-flow br0 'priority=10,in_port=local,actions=set_tunnel:10,output=2'
 ```
 
-在VM1 ping VM2，通过Wireshark抓取通过VM1 eth0的ICMP报文。
+在VM1 ping VM2，通过Wireshark在VM1 eth0抓取相关报文，结果如下列图例所示。
 p.s. wireshark可能无法正常decode报文的VXLAN header，可通过在对应报文右键`Decode As...`手动设置。
 
-![vxlan-experiment-wireshark.png](./vxlan-experiment-wireshark.png)
+VTEP为通过组播实现广播控制，所以需要使用IGMP协议加入组播组。如Figure 1所示，VTEP 192.168.5.23以EXCLUDE模式加入组播组。但是本实验中未配置组播控制器，所以并未启用组播功能。
 
+![vxlan-experiment-wireshark-igmp.png](./vxlan-experiment-wireshark-igmp.png)
+
+*Figure 1: IGMP packet of VTEP*
+
+如Figure 2所示，VTEP对于转发网络可视为正常用户，在同一子网内直接进行交换。相对的，在VTEP间通过ARP学习保证之间的连通性后，VTEP对用户层面的ARP进行封装，并发送至对端VTEP。由于未启用组播功能，故外层封装报文仍未点对点的通信。
+
+![vxlan-experiment-wireshark-vtep-arp.png](./vxlan-experiment-wireshark-vtep-arp.png)
+
+*Figure 2: ARP packet of VTEP*
+
+![vxlan-experiment-wireshark-vm-arp.png](./vxlan-experiment-wireshark-vm-arp.png)
+
+*Figure 3: ARP packet of VM*
+
+在VM间完成ARP学习后，ICMP报文的封装方式与ARP报文相同。其中`Flag=0x08`，即标志位中的I位置1，同时附加了自定义的VNI值为10，与流表设置内容相符。
+
+![vxlan-experiment-wireshark-icmp.png](./vxlan-experiment-wireshark-icmp.png)
+
+*Figure 4: ICMP packet of VM*
 
 ### 结论
 
@@ -55,3 +74,8 @@ p.s. wireshark可能无法正常decode报文的VXLAN header，可通过在对应
 
 - https://tools.ietf.org/pdf/rfc7348
 - http://www.arista.com/assets/data/pdf/Whitepapers/VXLAN_Scaling_Data_Center_Designs.pdf
+- http://bingotree.cn/?p=654
+- https://ring0.me/2014/02/network-virtualization-techniques/
+- http://www.sdnlab.com/15820.html
+- http://www.sdnlab.com/16169.html
+
