@@ -14,10 +14,11 @@ VXLAN（Virtual eXtensible LAN，可扩展虚拟局域网络）是基于IP网络
 
 ![vxlan-header-rfc7348.png](./vxlan-header-rfc7348.png)
 
-通过`VXLAN Header`字段中的`VXLAN Network Identifier（VNI）`实现overlay网络间报文的区分。当指定VNI时，8 bits的Flag标志位中的I标志位需置1，该段中设下的保留位R的值**必须**置0，而Header中其余的保留部分也**必须**置0。
-此外，VXLAN要求UDP目的端口号应该使用默认值4789，源端口号建议使用49152-65535（详见RFC文档）。同时，VXLAN也支持使用IPv6作为外层封装。
-
-使用场景
+通过`VXLAN Header`字段中的`VXLAN Network Identifier（VNI）`实现overlay网络间报文的区分。当指定VNI时，8 bits的Flag标志位中的I标志位需置1，该段中设下的保留位R的值**必须**置0，而Header中其余的保留部分也**必须**置0。此外，VXLAN要求UDP目的端口号应该使用默认值4789，源端口号建议使用49152-65535（详见RFC文档）。同时，VXLAN也支持使用IPv6作为外层封装。
+前文提到VXLAN提供的是overlay网络，除了以隧道方式传输数据，还有以下处理方式：
+- VTEP作为隧道的Endpoint在提供报文的封装及解封装之外，通过本地Mapping的方式减少了学习造成的隧道流量，此时VTEP可以任务实现了部分路由器的功能。
+- 对于未知的用户，仍需要有效的学习机制以减少广播对网络造成的负载。VXLAN使用组播来限制ARP广播仅在overlay子网内被处理，且组播能够有效控制泛洪规模。
+- 由于是overlay网络，在与公网连接时，需要通过VXLAN gateway与非VXLAN设备进行通信。
 
 ### 实验
 
@@ -48,7 +49,9 @@ p.s. wireshark可能无法正常decode报文的VXLAN header，可通过在对应
 
 ### 结论
 
+#### 与GRE技术的比较
 
 ### 参考资料
 
 - https://tools.ietf.org/pdf/rfc7348
+- http://www.arista.com/assets/data/pdf/Whitepapers/VXLAN_Scaling_Data_Center_Designs.pdf
