@@ -20,9 +20,13 @@ VXLAN（Virtual eXtensible LAN，可扩展虚拟局域网络）是基于IP网络
 - 对于未知的用户，仍需要有效的学习机制以减少广播对网络造成的负载。VXLAN使用组播来限制ARP广播仅在overlay子网内被处理，且组播能够有效控制泛洪规模。
 - 由于是overlay网络，在与公网连接时，需要通过VXLAN gateway与非VXLAN设备进行通信。
 
+### Overlay技术
+
+前文提到的overlay，旨在通过在现有基础网络的框架下实现网络的虚拟化。通过网络虚拟化，使物理网络对云资源透明。故对于用户来说，只需要了解虚拟网络的信息即可，从而简化资源部署、迁移等操作的管理成本。目前在诸如VXLAN、NVGRE、STT等技术中，VXLAN是目前业界接受最广的方案之一。
+
 ### 实验
 
-本实验环境与前文[GRE隧道技术](http://warcy.github.io/2016/04/29/GRE%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF/)基本相同，实验拓扑、虚拟机信息等详细数据可见前文。区别在与隧道搭建时，使用VXLAN而不是GRE，包括流表设置命令也与之前相同，当然OVS在实际封装报文时设置的是VXLAN报文中的VNI字段。且本实验只对VXLAN报文封装进行了验证性试验。
+本实验环境与前文[GRE隧道技术](http://warcy.github.io/2016/04/29/GRE%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF/)基本相同，实验拓扑、虚拟机信息等详细数据可见前文。区别在于隧道搭建时，使用VXLAN而不是GRE，包括流表设置命令也与之前相同，当然OVS在实际封装报文时设置的是VXLAN报文中的VNI字段。且本实验只对VXLAN报文封装进行了验证性试验。
 VM1:
 
 ```bash
@@ -44,7 +48,7 @@ $ ovs-ofctl add-flow br0 'priority=10,in_port=local,actions=set_tunnel:10,output
 在VM1 ping VM2，通过Wireshark在VM1 eth0抓取相关报文，结果如下列图例所示。
 p.s. wireshark可能无法正常decode报文的VXLAN header，可通过在对应报文右键`Decode As...`手动设置。
 
-VTEP为通过组播实现广播控制，所以需要使用IGMP协议加入组播组。如Figure 1所示，VTEP 192.168.5.23以EXCLUDE模式加入组播组。但是本实验中未配置组播控制器，所以并未启用组播功能。
+VTEP为通过组播实现广播控制，所以需要使用IGMP协议加入组播组。如Figure 1所示，VTEP 192.168.5.23以EXCLUDE模式加入组播组。但是本实验中未进行组播配置，故VTEP间将不会使用组播功能。
 
 ![vxlan-experiment-wireshark-igmp.png](./vxlan-experiment-wireshark-igmp.png)
 
@@ -68,13 +72,24 @@ VTEP为通过组播实现广播控制，所以需要使用IGMP协议加入组播
 
 ### 结论
 
-#### 与GRE技术的比较
+与GRE技术的比较，仅从抓包结果来看，两者都是以隧道方式进行通信。而其关键区别在于网络模型的设计上，相较于GRE的边缘设备，VXLAN中的VTEP提供了更为丰富的功能。究其本质原因，GRE在设计之初便是穿越现有网络的点对点通信方案，外层封装方案是行之有效的。当将其运用至云环境时，广播报文的处理等问题使其难以满足实际部署需求，而催生出VXLAN为代表的overlay技术。
+
+虽然设计看似很完善，但仔细考虑在实际部署中VXLAN也存在着或多或少的问题。比如在使用组播功能时，为实现隔离每个子网要求拥有独立的组播组信息。由于组播用户需要控制器以维护组播信息，路由器对于组播组的管理能力便极大限制了子网的数量。
+
+上文的实验部分只涉及了VXLAN的数据部分，即用户的数据封装。对于其管理平面，即VTEP间信息的学习（如VTEP A中用户X希望访问远端用户Y，故需获取Y所在的VTEP位置以封装对应的VXLAN报文），在RFC文档中给出的是组播学习方案。目前，业界对于VXLAN控制平面的处理常采用以下方式：
+
+- 组播
+- SDN控制器
+
+相对于组播方案规模的限制，SDN方案便于扩展的特性使其具备一定优势，如OpenStack中使用L2 population功能实现VTEP间的信息同步。其实当采用SDN方案时，问题的关键便从网络的数据平面转移到了控制平面上，如在大规模部署时如何能够让VTEP间更快地学习到需要的信息。而究其根本，仍旧是大规模云环境的部署所带来的“大”量IP/MAC/用户等信息使得现有设备难以满足需求。
 
 ### 参考资料
 
 - https://tools.ietf.org/pdf/rfc7348
 - http://www.arista.com/assets/data/pdf/Whitepapers/VXLAN_Scaling_Data_Center_Designs.pdf
 - http://bingotree.cn/?p=654
+- http://www.h3c.com.cn/About_H3C/Company_Publication/IP_Lh/2014/07/Home/Catalog/201501/852548_30008_0.htm
+- http://www.h3c.com.cn/Solution/Big_Network/Software_data/
 - https://ring0.me/2014/02/network-virtualization-techniques/
 - http://www.sdnlab.com/15820.html
 - http://www.sdnlab.com/16169.html
