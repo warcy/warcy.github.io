@@ -1,7 +1,9 @@
 ---
 title: VXLAN隧道技术
+date: 2016-05-07 20:18:33
 tags:
 ---
+
 
 VXLAN（Virtual eXtensible LAN，可扩展虚拟局域网络）是基于IP网络、采用MAC over UDP封装形式的二层 VPN技术。其本质与GRE类似，通过进一步封装实现隧道效果。
 
