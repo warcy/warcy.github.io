@@ -76,6 +76,13 @@ VTEP为通过组播实现广播控制，所以需要使用IGMP协议加入组播
 
 与GRE技术的比较，仅从抓包结果来看，两者都是以隧道方式进行通信。而其关键区别在于网络模型的设计上，相较于GRE的边缘设备，VXLAN中的VTEP提供了更为丰富的功能。究其本质原因，GRE在设计之初便是穿越现有网络的点对点通信方案，外层封装方案是行之有效的。当将其运用至云环境时，广播报文的处理等问题使其难以满足实际部署需求，而催生出VXLAN为代表的overlay技术。
 
+p.s. OpenStack wiki对于VXLAN和GRE方案区别的简要描述:
+
+> - Current OVS GRE implementation replicates broadcasts to every agent, even if they don’t host the corresponding network.
+> ![OpenStack_L2_population_GRE.svg](./OpenStack_L2_population_GRE.svg)
+> - VXLAN implementation can map all the networks broadcasts to a single multicast group (as proposed in vxlan-linuxbridge)
+> ![OpenStack_L2_population_VXLAN.svg](./OpenStack_L2_population_VXLAN.svg)
+
 虽然设计看似很完善，但仔细考虑在实际部署中VXLAN也存在着或多或少的问题。比如在使用组播功能时，为实现隔离每个子网要求拥有独立的组播组信息。由于组播用户需要控制器以维护组播信息，路由器对于组播组的管理能力便极大限制了子网的数量。
 
 上文的实验部分只涉及了VXLAN的数据部分，即用户的数据封装。对于其管理平面，即VTEP间信息的学习（如VTEP A中用户X希望访问远端用户Y，故需获取Y所在的VTEP位置以封装对应的VXLAN报文），在RFC文档中给出的是组播学习方案。目前，业界对于VXLAN控制平面的处理常采用以下方式：
@@ -95,4 +102,5 @@ VTEP为通过组播实现广播控制，所以需要使用IGMP协议加入组播
 - https://ring0.me/2014/02/network-virtualization-techniques/
 - http://www.sdnlab.com/15820.html
 - http://www.sdnlab.com/16169.html
+- https://wiki.openstack.org/wiki/L2population_blueprint
 
