@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2016-05-07T12:18:34.027Z</updated>
+  <updated>2016-11-18T02:29:52.867Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://yoursite.com/2016/05/07/VXLAN%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF/"/>
     <id>http://yoursite.com/2016/05/07/VXLAN隧道技术/</id>
     <published>2016-05-07T12:18:33.000Z</published>
-    <updated>2016-05-07T12:18:34.027Z</updated>
+    <updated>2016-11-18T02:29:52.867Z</updated>
     
     <content type="html">&lt;p&gt;VXLAN（Virtual eXtensible LAN，可扩展虚拟局域网络）是基于IP网络、采用MAC over UDP封装形式的二层 VPN技术。其本质与GRE类似，通过进一步封装实现隧道效果。&lt;/p&gt;
 &lt;p&gt;在学习VXLAN的报文结构等一系列具体知识之前，让我们看看RFC7348里是怎么说的：&lt;code&gt;Virtual eXtensible Local Area Network (VXLAN): A Framework for Overlaying Virtualized Layer 2 Networks over Layer 3 Networks&lt;/code&gt;。&lt;br&gt;显然，相对于GRE是一项报文封装技术，VXLAN是一种overlay网络框架。这也就意味着他不仅仅是一种隧道技术，他将给出overlay网络下的一系列处理方案，比如以组播承载租户的ARP广播。&lt;/p&gt;
@@ -51,6 +51,13 @@
 &lt;p&gt;&lt;img src=&quot;./vxlan-experiment-wireshark-icmp.png&quot; alt=&quot;vxlan-experiment-wireshark-icmp.png&quot;&gt;&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;Figure 4: ICMP packet of VM&lt;/em&gt;&lt;/p&gt;
 &lt;h3 id=&quot;结论&quot;&gt;&lt;a href=&quot;#结论&quot; class=&quot;headerlink&quot; title=&quot;结论&quot;&gt;&lt;/a&gt;结论&lt;/h3&gt;&lt;p&gt;与GRE技术的比较，仅从抓包结果来看，两者都是以隧道方式进行通信。而其关键区别在于网络模型的设计上，相较于GRE的边缘设备，VXLAN中的VTEP提供了更为丰富的功能。究其本质原因，GRE在设计之初便是穿越现有网络的点对点通信方案，外层封装方案是行之有效的。当将其运用至云环境时，广播报文的处理等问题使其难以满足实际部署需求，而催生出VXLAN为代表的overlay技术。&lt;/p&gt;
+&lt;p&gt;p.s. OpenStack wiki对于VXLAN和GRE方案区别的简要描述:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;Current OVS GRE implementation replicates broadcasts to every agent, even if they don’t host the corresponding network.&lt;br&gt;&lt;img src=&quot;./OpenStack_L2_population_GRE.svg&quot; alt=&quot;OpenStack_L2_population_GRE.svg&quot;&gt;&lt;/li&gt;
+&lt;li&gt;VXLAN implementation can map all the networks broadcasts to a single multicast group (as proposed in vxlan-linuxbridge)&lt;br&gt;&lt;img src=&quot;./OpenStack_L2_population_VXLAN.svg&quot; alt=&quot;OpenStack_L2_population_VXLAN.svg&quot;&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;虽然设计看似很完善，但仔细考虑在实际部署中VXLAN也存在着或多或少的问题。比如在使用组播功能时，为实现隔离每个子网要求拥有独立的组播组信息。由于组播用户需要控制器以维护组播信息，路由器对于组播组的管理能力便极大限制了子网的数量。&lt;/p&gt;
 &lt;p&gt;上文的实验部分只涉及了VXLAN的数据部分，即用户的数据封装。对于其管理平面，即VTEP间信息的学习（如VTEP A中用户X希望访问远端用户Y，故需获取Y所在的VTEP位置以封装对应的VXLAN报文），在RFC文档中给出的是组播学习方案。目前，业界对于VXLAN控制平面的处理常采用以下方式：&lt;/p&gt;
 &lt;ul&gt;
@@ -67,6 +74,7 @@
 &lt;li&gt;&lt;a href=&quot;https://ring0.me/2014/02/network-virtualization-techniques/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://ring0.me/2014/02/network-virtualization-techniques/&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;http://www.sdnlab.com/15820.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.sdnlab.com/15820.html&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;http://www.sdnlab.com/16169.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.sdnlab.com/16169.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://wiki.openstack.org/wiki/L2population_blueprint&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://wiki.openstack.org/wiki/L2population_blueprint&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </content>
     
